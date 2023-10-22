@@ -43,14 +43,21 @@ export default function Home() {
   }
   const sortCards = (e: any, index: number) => {
     let sortedCards = [...cards];
+    let sortedCardsCopy = [...cards];
     let draggedCard = sortedCards.splice(dragged.current, 1)[0];
-    console.log(dragged.current, draggedOver.current);
+    let draggedOverCard = sortedCardsCopy.splice(draggedOver.current, 1)[0];
 
-    let draggedOverCard = sortedCards.splice(
-      draggedOver.current,
-      0,
-      draggedCard
-    );
+    if (dragged.current < draggedOver.current) {
+      sortedCards.splice(draggedOver.current - 1, 1, draggedCard);
+      console.log(sortCards);
+      sortedCards.splice(dragged.current, 0, draggedOverCard);
+      console.log(sortedCards);
+    } else {
+      sortedCards.splice(draggedOver.current, 1, draggedCard);
+      console.log(sortCards);
+      sortedCards.splice(dragged.current, 0, draggedOverCard);
+      console.log(sortedCards);
+    }
     dragged.current = null;
     draggedOver.current = null;
     setCards(sortedCards);
@@ -68,17 +75,21 @@ export default function Home() {
             draggable
             onDragStart={(e) => {
               dragged.current = index;
+              const target = document.getElementById(
+                index.toString()
+              ) as HTMLElement;
+              target.classList.add(styles.hide);
             }}
             onDragEnter={(e) => {
               draggedOver.current = index;
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
 
               const target = document.getElementById(
                 index.toString()
               ) as HTMLElement;
               target.classList.add(styles.dragover);
-            }}
-            onDragOver={(e) => {
-              e.preventDefault();
             }}
             onDragLeave={(e) => {
               const target = document.getElementById(
@@ -87,13 +98,24 @@ export default function Home() {
               target.classList.remove(styles.dragover);
             }}
             onDragEnd={(e) => {
-              sortCards(e, index);
+              let element = e.currentTarget as HTMLElement;
+              element.classList.remove(styles.hide);
             }}
             onDrop={(e) => {
-              e.preventDefault();
-
-              const target2 = e.target as HTMLElement;
-              target2.classList.remove(styles.dragover);
+              const target = e.target as HTMLElement;
+              target.classList.remove(styles.dragover);
+              console.log(
+                "targetid",
+                target.id,
+                "draggedover",
+                draggedOver.current,
+                "dragged",
+                dragged.current
+              );
+              if (draggedOver.current === dragged.current) {
+              } else {
+                sortCards(e, index);
+              }
             }}
           >
             {card.id}
